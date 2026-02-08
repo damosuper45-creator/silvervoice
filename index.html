@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事例発表セミナー：八王子市シルバー人材センター「銀の声」事業</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: Warm Neutrals (Silver/Grey base with Human/Earth Accents) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgMain: '#f8f8f6',
+                        bgSec: '#e5e5e0',
+                        textMain: '#333333',
+                        textMuted: '#666666',
+                        accent: '#d97706',
+                        accentLight: '#fcd34d',
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans JP"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f8f8f6;
+            color: #333333;
+        }
+        /* Chart Container Styling per Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        
+        /* Custom Utilities */
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        .interactive-hover:hover {
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Application Structure Plan:
+         1. Hero Section: Emotional hook and clear value proposition.
+         2. Problem Diagnosis (Interactive): Users identify with the "Weeding Limit" problem via a checklist and a conceptual chart.
+         3. Video Section: BRIDGE - Visually introducing the "Silver Voice" project to provide context before diving into the "how-to".
+         4. The Solution Journey (Timeline/Tabs): Breaking down the project into clickable phases to simulate the seminar's narrative arc.
+         5. Seminar Value Analysis (Radar Chart): Visualizing the "takeaways".
+         6. Action/Registration: Final call to action with urgency indicators.
+    -->
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Hero Section -->
+        <header class="text-center space-y-6 py-10">
+            <div class="inline-block bg-accent text-white px-3 py-1 rounded-full text-sm font-bold mb-2">2026年3月18日 オンライン開催</div>
+            <h1 class="text-3xl md:text-5xl font-bold leading-tight text-gray-800">
+                <span class="block text-xl md:text-2xl text-textMuted font-normal mb-2">草むしりだけでは、もう限界だった。</span>
+                「銀の声」事業誕生秘話
+            </h1>
+            <p class="max-w-2xl mx-auto text-lg text-textMuted">
+                八王子市シルバー人材センターが挑んだ、屋外作業中心の常識を変える<br class="hidden md:block">
+                <span class="font-bold text-accent">「室内・対話型」新規事業</span>の全記録を公開。
+            </p>
+            <div class="pt-4">
+                <button onclick="scrollToSection('registration')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition hover:scale-105">
+                    無料で申し込む
+                </button>
+            </div>
+        </header>
+
+        <!-- Section 1: The Structural Problem -->
+        <section class="bg-white rounded-2xl p-6 md:p-10 card-shadow border-t-4 border-accent">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <span class="text-3xl">⚠️</span> 多くのセンターが直面する「限界」
+                </h2>
+                <p class="mt-2 text-textMuted">
+                    このセクションでは、なぜ今「新規事業」が必要なのか、その構造的な課題を可視化します。
+                    多くのシルバー人材センターが抱える「高齢化」と「作業内容」のミスマッチについて、
+                    貴センターの状況と照らし合わせながらご確認ください。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <!-- Interactive Checklist -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-lg text-gray-700">こんな悩み、ありませんか？</h3>
+                    <div id="checklist-container" class="space-y-3">
+                        <!-- Items injected by JS -->
+                    </div>
+                    <div id="checklist-feedback" class="text-sm font-bold text-accent mt-2 h-6">
+                        <!-- Feedback injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Conceptual Chart: The Gap -->
+                <div class="flex flex-col items-center">
+                    <h3 class="font-bold text-lg text-gray-700 mb-2 text-center">屋外作業需要と会員体力のギャップ</h3>
+                    <div class="chart-container">
+                        <canvas id="problemChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-gray-400 mt-2">※概念図：高齢化に伴う課題のイメージ</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Video Showcase (Bridge) -->
+        <section class="space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl font-bold text-gray-800">「銀の声」事業を動画で見る</h2>
+                <p class="text-sm text-textMuted max-w-lg mx-auto">銀の声の活動内容を短くまとめた紹介動画です。この事業が地域にどのような価値を生んでいるか、まずは視覚的に体験してください。</p>
+            </div>
+            <div class="max-w-3xl mx-auto rounded-3xl overflow-hidden shadow-2xl bg-white p-2">
+                <div class="aspect-video rounded-2xl overflow-hidden">
+                    <iframe 
+                        class="w-full h-full"
+                        src="https://www.youtube.com/embed/nOdyjrdsO44" 
+                        title="「銀の声」事業紹介動画"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Solution (Interactive Process) -->
+        <section class="bg-bgSec rounded-2xl p-6 md:p-10 card-shadow">
+            <div class="mb-8 text-center max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <span class="text-3xl">🌱</span> から <span class="text-3xl">🎤</span> へ。<br>
+                    「銀の声」事業立ち立ち上げの軌跡
+                </h2>
+                <p class="text-textMuted text-sm leading-relaxed">
+                    本セミナーで語られる、ゼロからの事業立ち上げプロセスをダイジェストで紹介します。
+                    下のステップをクリックして、各フェーズでどのような「壁」があったのかを予習しましょう。
+                </p>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="flex flex-wrap justify-center gap-2 mb-6" id="process-tabs">
+                <!-- Tabs injected by JS -->
+            </div>
+
+            <!-- Tab Content Display -->
+            <div class="bg-white rounded-xl p-6 md:p-8 min-h-[250px] flex flex-col justify-center relative transition-all duration-300" id="process-content">
+                <h3 id="process-title" class="text-xl font-bold text-accent mb-3"></h3>
+                <p id="process-desc" class="text-gray-600 leading-relaxed mb-4"></p>
+                <div id="process-insight" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-sm text-gray-700 italic"></div>
+            </div>
+        </section>
+
+        <!-- Section 3: Seminar Content Analysis -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Learning Outcomes (Radar Chart) -->
+            <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">セミナーで得られる知見</h2>
+                <p class="text-xs text-textMuted mb-4">
+                    本セミナーは事例紹介にとどまりません。新規事業立ち上げに必要な要素を
+                    バランスよく学ぶことができる構成になっています。
+                </p>
+                <div class="chart-container">
+                    <canvas id="contentRadarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Lecturer & Benefits -->
+            <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">講師プロフィール</h2>
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-2xl">
+                            👔
+                        </div>
+                        <div>
+                            <p class="font-bold text-lg">野母 裕和 氏</p>
+                            <p class="text-sm text-gray-500">公益社団法人八王子市シルバー人材センター 主任</p>
+                            <p class="mt-2 text-sm text-gray-600">
+                                現場の声を拾い上げ、制度の枠に捉われない柔軟な発想で新規事業を推進する「高齢者に寄り添う戦略家」。「銀の声」事業で2025グッドデザイン賞を受賞。
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-gray-700 mb-2 border-b border-gray-100 pb-2 text-sm">参加する3つのメリット</h3>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                        <li class="flex items-start gap-2">
+                            <span class="text-accent font-bold">1.</span>
+                            <span>新規事業の具体的な「勝ち筋」と判断基準がわかる</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-accent font-bold">2.</span>
+                            <span>体力に依存しない「室内・対話型」モデルのヒント</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-accent font-bold">3.</span>
+                            <span>将来のセンター運営を変革する勇気が得られる</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Registration CTA -->
+        <section id="registration" class="bg-gray-800 text-white rounded-2xl p-8 md:p-12 text-center card-shadow">
+            <h2 class="text-2xl md:text-3xl font-bold mb-4">未来のセンター運営への第一歩を。</h2>
+            <p class="text-gray-300 mb-8 max-w-xl mx-auto">
+                定員は50名限定です。費用は完全無料です。お早めにお申し込みください。
+            </p>
+
+            <div class="max-w-md mx-auto mb-8 bg-gray-700 rounded-lg p-4">
+                <div class="flex justify-between text-sm mb-2">
+                    <span>定員状況</span>
+                    <span class="text-accentLight font-bold">残りわずか</span>
+                </div>
+                <div class="w-full bg-gray-600 rounded-full h-4">
+                    <div class="bg-accent h-4 rounded-full transition-all duration-1000" style="width: 82%"></div>
+                </div>
+                <p class="text-[10px] text-right mt-1 text-gray-400">50名定員（先着順）</p>
+            </div>
+
+            <a href="https://reserva.be/senior_seminar" target="_blank" class="inline-block bg-accent hover:bg-yellow-600 text-white font-bold text-xl py-4 px-12 rounded-lg shadow-xl transform transition hover:scale-105 mb-4">
+                今すぐ申し込む（無料）
+            </a>
+            <p class="text-xs text-gray-400">※外部予約サイトへ移動します</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-12 py-8 text-center text-sm text-gray-500">
+        <p>&copy; 2026 IKIGAI PLUS Seminar.</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Data & State
+        const checklistItems = [
+            "高齢会員が「草むしりはもうしんどい」と漏らしている",
+            "会員の高齢化が進み、受注できる作業が減ってきている",
+            "新しい事業を始めたいが、何から手をつければいいか分からない",
+            "地域社会との新しい接点を模索している"
+        ];
+        
+        const processSteps = [
+            {
+                id: 'crisis',
+                title: '危機感と限界',
+                icon: '🍂',
+                desc: '屋外作業への依存が高い中、夏場の作業は危険を伴い、受注制限をせざるを得ない状況に。「このままではセンターの未来はない」という現場の危機感が原点でした。',
+                insight: 'POINT: 現状維持のリスクを直視することから始まった。'
+            },
+            {
+                id: 'idea',
+                title: '「声」への着目',
+                icon: '💡',
+                desc: '体力を必要とせず、高齢者の豊富な人生経験を活かせる仕事は何か？模索の中で生まれたのが「声」を使う仕事。対話型の業務に可能性を見出しました。',
+                insight: 'POINT: 「できないこと」ではなく「できること」への視点転換。'
+            },
+            {
+                id: 'action',
+                title: '立ち上げと説得',
+                icon: '🔨',
+                desc: '前例のない事業に対する組織内の慎重論。予算獲得の壁。担当者がどのように熱意を伝えて組織を動かしたのか。そのプロセスを公開します。',
+                insight: 'POINT: 組織を動かすのは「論理」と「熱意」の掛け合わせ。'
+            },
+            {
+                id: 'future',
+                title: '営業・広報・未来',
+                icon: '🚀',
+                desc: 'サービスを作って終わりではない。地域にどのように広報し、顧客を獲得したのか。そして「銀の声」事業が目指す、センターの新しい未来像とは。',
+                insight: 'POINT: 待っているだけでは仕事は来ない。攻めの広報戦略。'
+            }
+        ];
+
+        let currentProcessIndex = 0;
+        let checkedCount = 0;
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            renderChecklist();
+            renderProcessTabs();
+            updateProcessContent(0);
+            initProblemChart();
+            initRadarChart();
+        });
+
+        // Interactive Checklist Logic
+        function renderChecklist() {
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = checklistItems.map((item, index) => `
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition" onclick="toggleCheck(${index})">
+                    <div class="w-6 h-6 border-2 border-gray-300 rounded mr-3 flex items-center justify-center bg-white" id="check-box-${index}">
+                        <span class="text-accent font-bold opacity-0 check-mark">✓</span>
+                    </div>
+                    <span class="text-sm md:text-base text-gray-700 select-none">${item}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleCheck(index) {
+            const box = document.getElementById(`check-box-${index}`);
+            const mark = box.querySelector('.check-mark');
+            
+            if (mark.classList.contains('opacity-0')) {
+                mark.classList.remove('opacity-0');
+                box.classList.add('border-accent');
+                checkedCount++;
+            } else {
+                mark.classList.add('opacity-0');
+                box.classList.remove('border-accent');
+                checkedCount--;
+            }
+
+            const feedback = document.getElementById('checklist-feedback');
+            if (checkedCount > 0) {
+                feedback.textContent = `その悩み、本セミナーで解決の糸口が見つかります。`;
+                feedback.classList.add('animate-pulse');
+            } else {
+                feedback.textContent = '';
+                feedback.classList.remove('animate-pulse');
+            }
+        }
+
+        // Process Timeline Logic
+        function renderProcessTabs() {
+            const container = document.getElementById('process-tabs');
+            container.innerHTML = processSteps.map((step, index) => `
+                <button 
+                    onclick="updateProcessContent(${index})"
+                    class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-gray-200 
+                    ${index === 0 ? 'bg-accent text-white border-accent shadow-md' : 'bg-white text-gray-600 hover:bg-gray-50'}"
+                    id="tab-${index}"
+                >
+                    ${step.icon} ${step.title}
+                </button>
+            `).join('');
+        }
+
+        function updateProcessContent(index) {
+            currentProcessIndex = index;
+            
+            // Update Tabs Styling
+            processSteps.forEach((_, i) => {
+                const tab = document.getElementById(`tab-${i}`);
+                if (i === index) {
+                    tab.className = 'px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-accent bg-accent text-white shadow-md transform scale-105';
+                } else {
+                    tab.className = 'px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50';
+                }
+            });
+
+            // Update Content
+            const contentDiv = document.getElementById('process-content');
+            contentDiv.style.opacity = '0';
+            
+            setTimeout(() => {
+                const step = processSteps[index];
+                document.getElementById('process-title').innerHTML = `${step.icon} ${step.title}`;
+                document.getElementById('process-desc').textContent = step.desc;
+                document.getElementById('process-insight').textContent = step.insight;
+                contentDiv.style.opacity = '1';
+            }, 200);
+        }
+
+        // Chart 1: The Problem Gap (Line Chart)
+        function initProblemChart() {
+            const ctx = document.getElementById('problemChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2015', '2020', '2025', '2030(予測)'],
+                    datasets: [
+                        {
+                            label: '会員平均年齢',
+                            data: [72, 74, 76, 78],
+                            borderColor: '#d97706', // Accent color
+                            backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                            yAxisID: 'y',
+                            tension: 0.3
+                        },
+                        {
+                            label: '屋外重労働可能人数',
+                            data: [100, 85, 60, 40], // Conceptual decrease
+                            borderColor: '#666',
+                            borderDash: [5, 5],
+                            yAxisID: 'y1',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + (context.datasetIndex === 0 ? '歳' : '指数');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '年齢' },
+                            min: 65,
+                            max: 85
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: '稼働力指数' },
+                            grid: { drawOnChartArea: false },
+                            min: 0,
+                            max: 120
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: Seminar Content Radar
+        function initRadarChart() {
+            const ctx = document.getElementById('contentRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['事業企画力', '組織内調整', '営業・広報戦略', 'マインドセット', 'リスク管理'],
+                    datasets: [{
+                        label: '重点領域',
+                        data: [90, 80, 85, 95, 70],
+                        fill: true,
+                        backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                        borderColor: '#d97706',
+                        pointBackgroundColor: '#d97706',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#d97706'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': 重視';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Smooth Scroll
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
